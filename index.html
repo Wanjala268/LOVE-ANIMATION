@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Particle Rain</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      height: 100vh;
+      background-color: #0f0f0f;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #loveButton {
+      padding: 10px 20px;
+      background-color: #0f0f0f;
+      color: lime;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      margin-bottom: 20px;
+      box-shadow: 3px 3px 10px rgba(0, 159, 0, 0.863), 3px 3px 20px rgba(0, 159, 0, 0.814), 3px 3px 2px rgba(0, 159, 0, 0.814);
+      z-index: 1;
+    }
+
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <button id="loveButton">Rain Love</button>
+  <canvas id="particleCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    let rainingLove = false;
+    let loveRainDuration = 60000; // 1 minute (60,000 milliseconds)
+    let startTime;
+
+    // Button click event listener
+    document.getElementById('loveButton').addEventListener('click', () => {
+      rainingLove = true;
+      startTime = Date.now();
+    });
+
+    // Heart particle constructor
+    class HeartParticle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -canvas.height; // start off the screen
+        this.size = Math.random() * 15 + 5;
+        this.speedY = Math.random() * 2 + 1;
+        this.color = '#ff69b4';
+      }
+
+      update() {
+        this.y += this.speedY;
+        // Reset the position if it goes off the bottom of the screen
+        if (this.y > canvas.height) {
+          this.y = 0 - this.size;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.bezierCurveTo(this.x + this.size / 2, this.y - this.size, this.x + this.size, this.y + this.size / 3, this.x, this.y + this.size);
+        ctx.bezierCurveTo(this.x - this.size, this.y + this.size / 3, this.x - this.size / 2, this.y - this.size, this.x, this.y);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    // Handle particles
+    function handleParticles() {
+      for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+      }
+    }
+
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      handleParticles();
+
+      if (rainingLove) {
+        let currentTime = Date.now();
+        if (currentTime - startTime < loveRainDuration) {
+          for (let i = 0; i < 5; i++) {
+            particlesArray.push(new HeartParticle());
+          }
+        } else {
+          rainingLove = false;  // Stop adding new particles after 1 minute
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // Resize canvas with the window
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
